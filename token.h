@@ -13,6 +13,9 @@ struct Token {
   Token(const char* tokenText, const TokenType& tokenType);
   Token(const char& tokenStart, const TokenType& tokenType);
   ~Token();
+
+  static Token* tokenMap(const char* tokenText);
+
 };
 
 #endif //TOKEN_H

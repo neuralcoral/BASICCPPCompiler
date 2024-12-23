@@ -4,6 +4,7 @@
 
 #ifndef TOKEN_TYPE_H
 #define TOKEN_TYPE_H
+#include <unordered_map>
 
 enum TokenType {
   END_OF_FILE = -1,

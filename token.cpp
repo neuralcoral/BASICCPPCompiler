@@ -29,3 +29,24 @@ Token::~Token() {
   delete[] tokenText;
   tokenText = nullptr;
 }
+
+
+
+Token* Token::tokenMap(const char* tokenText) {
+    if(strcmp(tokenText, "LET") == 0) {
+      return new Token("LET", TokenType::LET);
+    } else if(strcmp(tokenText, "IF") == 0) {
+      return new Token("IF", TokenType::IF);
+    } else if (strcmp(tokenText,"THEN") == 0) {
+      return new Token("THEN", TokenType::THEN);
+    } else if (strcmp(tokenText,"ENDIF") == 0) {
+      return new Token("ENDIF", TokenType::ENDIF);
+    } else if (strcmp(tokenText,"WHILE") == 0) {
+      return new Token("WHILE", TokenType::WHILE);
+    } else if (strcmp(tokenText,"REPEAT") == 0) {
+      return new Token("REPEAT", TokenType::REPEAT);
+    } else if (strcmp(tokenText,"ENDWHILE") == 0) {
+      return new Token("ENDWHILE", TokenType::ENDWHILE);
+    }
+  return nullptr;
+}

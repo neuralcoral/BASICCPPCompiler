@@ -20,9 +20,10 @@ Lexer::Lexer(const char* source) {
     currentChar = '\0';
     return;
   }
-  this->source = new char[sourceLength + 1];
+  this->source = new char[sourceLength + 2];
   memcpy(this->source, source, sourceLength);
-  this->source[sourceLength] = '\0';
+  this->source[sourceLength] = '\n';
+  this->source[sourceLength + 1] = '\0';
   currentChar = source[currentPosition];
 }
 
@@ -32,7 +33,7 @@ Lexer::~Lexer() {
 }
 
 void Lexer::nextChar() {
-  if (currentPosition < sourceLength) {
+  if (currentPosition <= sourceLength) {
     currentChar = source[++currentPosition];
   }
 }
@@ -51,8 +52,10 @@ void Lexer::skipWhitespace() {
 }
 
 void Lexer::skipComment() {
-  while(source[this->currentPosition] == '#') {
-    nextChar();
+  if(source[this->currentPosition] == '#') {
+    while (currentChar != '\n') {
+      nextChar();
+    }
   }
 }
 
@@ -61,6 +64,7 @@ Token* buildTwoCharacterToken(const char& firstChar, const char& secondChar, con
   chars[0] = firstChar; chars[1] = secondChar;
   return new Token(chars, type);
 }
+
 Token* Lexer::resolveTwoCharacterToken(const char& peekedChar, const TokenType& oneCharType, const TokenType& twoCharType) {
   Token* token = nullptr;
   if (peek() == peekedChar) {
@@ -74,8 +78,49 @@ Token* Lexer::resolveTwoCharacterToken(const char& peekedChar, const TokenType& 
   return token;
 }
 
+bool isIllegalStringChar(const char& stringChar) {
+  return stringChar == '\r' || stringChar == '\n' || stringChar == '\\' || stringChar == '%';
+}
+
+Token* Lexer::handleString() {
+  if (currentChar != '"') {
+    abort("Not a string");
+  }
+  nextChar();
+  const auto startPosition = currentPosition;
+  while (currentChar != '"') {
+    if (isIllegalStringChar(currentChar)) {
+      abort("Illegal character in string");
+    }
+    nextChar();
+  }
+  const unsigned int size = currentPosition - startPosition;
+  const auto tokenText = new char[size];
+  strncpy(tokenText, source + startPosition, size);
+  return new Token(tokenText, STRING);
+}
+
+Token* Lexer::handleAlpha() {
+  if (!isalpha(currentChar)) {
+    abort("Not a alpha character");
+  }
+  const auto startPosition = currentPosition;
+  while (isalnum(peek())) {
+    nextChar();
+  }
+  const unsigned int size = currentPosition - startPosition + 1;
+  const auto tokenText = new char[size];
+  strncpy(tokenText, source + startPosition, size);
+  if (const auto token = Token::tokenMap(tokenText)) {
+    return token;
+  }
+
+  return new Token(tokenText, IDENT);
+}
+
 Token* Lexer::getToken() {
   skipWhitespace();
+  skipComment();
   Token* token = nullptr;
   switch(currentChar) {
     case '+':
@@ -105,6 +150,9 @@ Token* Lexer::getToken() {
     case '<':
       token = resolveTwoCharacterToken('=', LT, LTEQ);
       break;
+    case '"':
+      token = handleString();
+      break;
     case '!':
       if (peek() == '=') {
         nextChar();
@@ -114,12 +162,47 @@ Token* Lexer::getToken() {
       }
       break;
     default:
+      if (isdigit(currentChar)) {
+        token = handleNumber();
+        break;
+      } else if (isalpha(currentChar)) {
+        token = handleAlpha();
+        break;
+      }
       const auto errorMessage = std::string("Unexpected character: `").append(std::string(1, currentChar)).append("`\n");
       abort(errorMessage.c_str());
   }
   nextChar();
   return token;
 }
+
+
+Token* Lexer::handleNumber() {
+  if (!isdigit(currentChar)) {
+    abort("Not a digit");
+  }
+
+  const auto startPosition = currentPosition;
+  while (isdigit(peek())) {
+    nextChar();
+  }
+  if (peek() == '.') {
+    nextChar();
+    if (!isdigit(peek())) {
+      abort("Illegal character in number.");
+    }
+    while (isdigit(peek())) {
+      nextChar();
+    }
+  }
+  const unsigned int size = currentPosition - startPosition + 1;
+  const auto tokenText = new char[size];
+  strncpy(tokenText, source + startPosition, size);
+  return new Token(tokenText, NUMBER);
+}
+
+
+
 
 void Lexer::abort(const char* message) {
   throw std::runtime_error("Lexing error. " + std::string(message));

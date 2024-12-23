@@ -5,13 +5,14 @@
 #include "lexer.h"
 
 int main() {
-  auto source = "+- */>>==!=\n";
+  const auto source = "IF+-123 foo*THEN/";
   auto lexer = Lexer(source);
 
-  auto token = *lexer.getToken();
-  while (token.tokenType != END_OF_FILE) {
-    std::cout << toString(token.tokenType) << std::endl;
-    token = *lexer.getToken();
+  auto token = lexer.getToken();
+  while (token->tokenType != END_OF_FILE) {
+    std::cout << toString(token->tokenType) << std::endl;
+    delete token;
+    token = lexer.getToken();
   }
   return 0;
 }

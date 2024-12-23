@@ -12,11 +12,14 @@ class Lexer {
   unsigned int currentPosition;
   unsigned int sourceLength;
   Token* resolveTwoCharacterToken(const char &peekedChar, const TokenType &oneCharType, const TokenType &twoCharType);
+  Token* handleString();
+  Token* handleNumber();
+  Token* handleAlpha();
   public:
     explicit Lexer(const char* source);
     ~Lexer();
     void nextChar();
-    char peek() const;
+    [[nodiscard]] char peek() const;
 
     void skipWhitespace();
     void skipComment();
