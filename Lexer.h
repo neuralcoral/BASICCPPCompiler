@@ -7,22 +7,21 @@
 #include "token.h"
 
 class Lexer {
-  private:
-    char* source;
-    char currentChar;
-    unsigned int currentPosition;
-    unsigned int sourceLength;
+  char *source;
+  char currentChar;
+  unsigned int currentPosition;
+  unsigned int sourceLength;
+  Token* resolveTwoCharacterToken(const char &peekedChar, const TokenType &oneCharType, const TokenType &twoCharType);
   public:
-    Lexer(const char* source);
+    explicit Lexer(const char* source);
     ~Lexer();
     void nextChar();
     char peek() const;
-    void abort() const;
+
     void skipWhitespace();
     void skipComment();
-    Token getToken();
+    Token* getToken();
+    static void abort(const char *message);
 };
-
-
 
 #endif //LEXER_H

@@ -11,7 +11,7 @@ struct Token {
 
   Token();
   Token(const char* tokenText, const TokenType& tokenType);
-  Token(const char tokenStart, const TokenType& tokenType);
+  Token(const char& tokenStart, const TokenType& tokenType);
   ~Token();
 };
 

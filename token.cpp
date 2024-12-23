@@ -3,12 +3,12 @@
 //
 
 #include "token.h"
-#include <string.h>
+#include <cstring>
 
 Token::Token() {
   this->tokenText = new char[1];
   this->tokenText[0] = '\0';
-  this->tokenType = TokenType::END_OF_FILE;
+  this->tokenType = END_OF_FILE;
 }
 
 Token::Token(const char* tokenText, const TokenType& tokenType) {
@@ -18,10 +18,10 @@ Token::Token(const char* tokenText, const TokenType& tokenType) {
   this->tokenType = tokenType;
 }
 
-Token::Token(const char tokenText, const TokenType& tokenType) {
-  this->tokenText = new char[2];
-  this->tokenText[0] = tokenText;
-  this->tokenText[1] = '\0';
+Token::Token(const char& tokenStart, const TokenType& tokenType) {
+  tokenText = new char[2];
+  tokenText[0] = tokenStart;
+  tokenText[1] = '\0';
   this->tokenType = tokenType;
 }
 
