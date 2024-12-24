@@ -30,23 +30,29 @@ Token::~Token() {
   tokenText = nullptr;
 }
 
-
-
 Token* Token::tokenMap(const char* tokenText) {
-    if(strcmp(tokenText, "LET") == 0) {
-      return new Token("LET", TokenType::LET);
-    } else if(strcmp(tokenText, "IF") == 0) {
-      return new Token("IF", TokenType::IF);
-    } else if (strcmp(tokenText,"THEN") == 0) {
-      return new Token("THEN", TokenType::THEN);
-    } else if (strcmp(tokenText,"ENDIF") == 0) {
-      return new Token("ENDIF", TokenType::ENDIF);
-    } else if (strcmp(tokenText,"WHILE") == 0) {
-      return new Token("WHILE", TokenType::WHILE);
-    } else if (strcmp(tokenText,"REPEAT") == 0) {
-      return new Token("REPEAT", TokenType::REPEAT);
-    } else if (strcmp(tokenText,"ENDWHILE") == 0) {
-      return new Token("ENDWHILE", TokenType::ENDWHILE);
+    if (strcmp(tokenText, toString(LABEL)) == 0) {
+      return new Token(tokenText, LABEL);
+    } else if(strcmp(tokenText, toString(GOTO)) == 0) {
+      return new Token(tokenText, GOTO);
+    } else if(strcmp(tokenText, toString(PRINT)) == 0) {
+      return new Token(tokenText, PRINT);
+    } else if(strcmp(tokenText, toString(INPUT)) == 0) {
+      return new Token(tokenText, INPUT);
+    } else if(strcmp(tokenText, toString(LET)) == 0) {
+      return new Token(tokenText, LET);
+    } else if(strcmp(tokenText, toString(IF)) == 0) {
+      return new Token(tokenText, TokenType::IF);
+    } else if (strcmp(tokenText, toString(THEN)) == 0) {
+      return new Token(tokenText, TokenType::THEN);
+    } else if (strcmp(tokenText, toString(ENDIF)) == 0) {
+      return new Token(tokenText, TokenType::ENDIF);
+    } else if (strcmp(tokenText, toString(WHILE)) == 0) {
+      return new Token(tokenText, TokenType::WHILE);
+    } else if (strcmp(tokenText, toString(REPEAT)) == 0) {
+      return new Token(tokenText, TokenType::REPEAT);
+    } else if (strcmp(tokenText, toString(ENDWHILE)) == 0) {
+      return new Token(tokenText, TokenType::ENDWHILE);
     }
   return nullptr;
 }

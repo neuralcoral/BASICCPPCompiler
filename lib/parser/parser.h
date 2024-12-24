@@ -8,13 +8,19 @@
 #include "lexer.h"
 
 class Parser {
-    const Lexer *lexer;
+    Lexer * const lexer;
+    Token *currentToken;
+    Token *peekToken;
+    void nextToken();
+    static void abort(const char* message);
+    [[nodiscard]] bool checkToken(const TokenType& tokenType) const;
+    [[nodiscard]] bool checkPeek(const TokenType& tokenType) const;
+    void match(const TokenType& tokenType);
+    void statement();
+    void newline();
   public:
-    Parser();
-    explicit Parser(const Lexer* lexer) : lexer(lexer) {};
-
+    explicit Parser(Lexer * lexer);
+    void program();
 };
-
-
 
 #endif //PARSER_H

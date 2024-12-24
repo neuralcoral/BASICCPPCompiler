@@ -15,13 +15,8 @@ int main(int argc, char* argv[]) {
   const auto source = read_file(argv[1]);
   auto lexer = Lexer(source);
   auto parser = Parser(&lexer);
+  parser.program();
 
-  auto token = lexer.getToken();
-  while (token->tokenType != END_OF_FILE) {
-    std::cout << toString(token->tokenType) << std::endl;
-    delete token;
-    token = lexer.getToken();
-  }
   std::cout << "Parser completed." << std::endl;
   delete[] source;
   return 0;
