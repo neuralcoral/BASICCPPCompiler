@@ -3,10 +3,12 @@
 //
 #include <iostream>
 #include "lexer.h"
+#include "parser.h"
 
 int main() {
   const auto source = "IF+-123 foo*THEN/";
   auto lexer = Lexer(source);
+  auto parser = Parser(&lexer);
 
   auto token = lexer.getToken();
   while (token->tokenType != END_OF_FILE) {

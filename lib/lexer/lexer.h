@@ -17,6 +17,7 @@ class Lexer {
   Token* handleAlpha();
   public:
     explicit Lexer(const char* source);
+    Lexer(const Lexer& other);
     ~Lexer();
     void nextChar();
     [[nodiscard]] char peek() const;

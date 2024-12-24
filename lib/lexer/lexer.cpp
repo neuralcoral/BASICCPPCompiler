@@ -27,6 +27,16 @@ Lexer::Lexer(const char* source) {
   currentChar = source[currentPosition];
 }
 
+Lexer::Lexer(const Lexer& other) {
+  currentPosition = other.currentPosition;
+  sourceLength = other.sourceLength;
+  source = new char[sourceLength + 2];
+  memcpy(this->source, source, sourceLength);
+  this->source[sourceLength] = '\n';
+  this->source[sourceLength + 1] = '\0';
+  currentChar = source[currentPosition];
+}
+
 Lexer::~Lexer() {
   delete[] this->source;
   this->source = nullptr;

@@ -15,7 +15,6 @@ struct Token {
   ~Token();
 
   static Token* tokenMap(const char* tokenText);
-
 };
 
 #endif //TOKEN_H
