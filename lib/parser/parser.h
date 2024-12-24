@@ -18,6 +18,12 @@ class Parser {
     void match(const TokenType& tokenType);
     void statement();
     void newline();
+    [[nodiscard]] bool isComparisonOperator() const;
+    void comparison();
+    void expression();
+    void term();
+    void unary();
+    void primary();
   public:
     explicit Parser(Lexer * lexer);
     void program();

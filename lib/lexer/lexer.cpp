@@ -49,7 +49,7 @@ void Lexer::nextChar() {
 }
 
 char Lexer::peek() const {
-  if (this->currentPosition >= this->source[this->currentPosition]) {
+  if (this->currentPosition >= this->sourceLength) {
     return '\0';
   }
   return this->source[this->currentPosition + 1];
