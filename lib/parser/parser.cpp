@@ -6,8 +6,9 @@
 
 #include <iostream>
 
+class Emitter;
 
-Parser::Parser(Lexer * lexer) : lexer(lexer) {
+Parser::Parser(Lexer * lexer, Emitter * emitter) : lexer(lexer), emitter(emitter) {
   currentToken = nullptr;
   peekToken = nullptr;
   nextToken();
@@ -44,7 +45,8 @@ void Parser::nextToken() {
 }
 
 void Parser::program() {
-  std::cout << "PROGRAM" << std::endl;
+  emitter->headerLine("#include <stdio.h>");
+  emitter->headerLine("int main(void) {");
   while (checkToken(NEWLINE)) {
     nextToken();
   }
@@ -52,6 +54,9 @@ void Parser::program() {
   while (!checkToken(TokenType::END_OF_FILE)) {
     statement();
   }
+
+  emitter->emitLine("return 0;");
+  emitter->emitLine("}");
 
   for (const auto& label : labelsGotoed) {
     if (!labelsDeclared.contains(label)) {
@@ -62,29 +67,26 @@ void Parser::program() {
 }
 
 void Parser::expression() {
-  std::cout << "EXPRESSION" << std::endl;
-
   term();
   while (checkToken(PLUS) || checkToken(MINUS)) {
+    emitter->emit(currentToken->tokenText);
     nextToken();
     term();
   }
 }
 
 void Parser::term() {
-  std::cout << "TERM" << std::endl;
-
   unary();
-  while (checkToken(ASTERISK) || checkToken(PLUS)) {
+  while (checkToken(ASTERISK) || checkToken(SLASH)) {
+    emitter->emit(currentToken->tokenText);
     nextToken();
     unary();
   }
 }
 
 void Parser::unary() {
-  std::cout << "UNARY" << std::endl;
-
   if (checkToken(PLUS) || checkToken(MINUS)) {
+    emitter->emit(currentToken->tokenText);
     nextToken();
   }
   primary();
@@ -92,34 +94,32 @@ void Parser::unary() {
 
 void Parser::primary() {
   if (checkToken(NUMBER)) {
-    std::cout << "PRIMARY (" << currentToken->tokenText << ")\n";
+    emitter->emit(currentToken->tokenText);
     nextToken();
   } else if (checkToken(IDENT)) {
     if (!symbols.contains(currentToken->tokenText)) {
       abort("Referencing variable before assignment: " + currentToken->tokenText);
     }
-    std::cout << "PRIMARY (" << currentToken->tokenText << ")\n";
+    emitter->emit(currentToken->tokenText);
     nextToken();
   } else {
-    const auto message = "Unexpected token at '" + currentToken->tokenText;
-    abort(message);
+    abort("Unexpected token at '" + currentToken->tokenText);
   }
 }
 
 
 void Parser::comparison() {
-  std::cout << "COMPARISON" << std::endl;
-
   expression();
   if (isComparisonOperator()) {
+    emitter->emit(currentToken->tokenText);
     nextToken();
     expression();
   } else {
-    const auto message = std::string("Expected comparison operator at: '").append(currentToken->tokenText);
-    abort(message);
+    abort("Expected comparison operator at: '" + currentToken->tokenText);
   }
 
   while (isComparisonOperator()) {
+    emitter->emit(currentToken->tokenText);
     nextToken();
     expression();
   }
@@ -131,65 +131,89 @@ bool Parser::isComparisonOperator() const {
 
 
 void Parser::statement() {
-  if (checkToken(TokenType::PRINT)) {
-    std::cout << "STATEMENT-PRINT\n";
+  if (checkToken(PRINT)) {
     nextToken();
 
     if (checkToken(TokenType::STRING)) {
+      emitter->emitLine("printf(\"" + currentToken->tokenText + "\\n\");");
       nextToken();
     } else {
+      emitter->emit(R"(printf("%.2f\n", (float)()");
       expression();
+      emitter->emitLine("));");
     }
   } else if (checkToken(TokenType::IF)) {
-    std::cout << "STATEMENT-IF\n";
     nextToken();
+    emitter->emit("if(");
     comparison();
+
     match(THEN);
     newline();
+    emitter->emitLine("){");
+
     while (!checkToken(ENDIF)) {
       statement();
     }
+
     match(ENDIF);
+    emitter->emitLine("}");
+
   } else if (checkToken(TokenType::WHILE)) {
-    std::cout << "STATEMENT-WHILE\n";
     nextToken();
+    emitter->emit("while(");
     comparison();
 
     match(REPEAT);
     newline();
+    emitter->emitLine("){");
+
     while (!checkToken(ENDWHILE)) {
       statement();
     }
+
     match(ENDWHILE);
+    emitter->emitLine("}");
   } else if (checkToken(LABEL)) {
-    std::cout << "STATEMENT-LABEL\n";
     nextToken();
+
     if (labelsDeclared.contains(currentToken->tokenText)) {
       const auto message = std::string("Label already declared: ").append(currentToken->tokenText);
       abort(message);
     }
     labelsDeclared.insert(currentToken->tokenText);
+
+    emitter->emitLine(currentToken->tokenText + ":");
     match(IDENT);
   } else if (checkToken(GOTO)) {
-    std::cout << "STATEMENT-GOTO\n";
     nextToken();
     labelsGotoed.insert(currentToken->tokenText);
+    emitter->emitLine("goto " + currentToken->tokenText + ";");
     match(IDENT);
   } else if (checkToken(LET)) {
-    std::cout << "STATEMENT-LET\n";
     nextToken();
+
     if (!symbols.contains(currentToken->tokenText)) {
       symbols.insert(currentToken->tokenText);
+      emitter->headerLine("float " + currentToken->tokenText + ";");
     }
+
+    emitter->emit(currentToken->tokenText + " = ");
     match(IDENT);
     match(EQ);
+
     expression();
+    emitter->emitLine(";");
   } else if (checkToken(INPUT)) {
     std::cout << "STATEMENT-INPUT\n";
     nextToken();
     if (!symbols.contains(currentToken->tokenText)) {
       symbols.insert(currentToken->tokenText);
+      emitter->headerLine("float " + currentToken->tokenText + ";");
     }
+    emitter->emitLine("if(0 == scanf(\"%f\", &" + currentToken->tokenText + ")) {");
+    emitter->emitLine(currentToken->tokenText + " = 0;");
+    emitter->emitLine("scanf(\"%*s\");");
+    emitter->emitLine("}");
     match(IDENT);
   } else {
     const auto message = std::string("Invalid statement at ").append(currentToken->tokenText)
@@ -200,7 +224,6 @@ void Parser::statement() {
 }
 
 void Parser::newline() {
-  std::cout << "NEWLINE" << std::endl;
   match(TokenType::NEWLINE);
   while (checkToken(TokenType::NEWLINE)) {
     nextToken();

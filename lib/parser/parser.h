@@ -7,6 +7,7 @@
 
 #include <unordered_set>
 
+#include "emitter.h"
 #include "lexer.h"
 
 class Parser {
@@ -14,6 +15,7 @@ class Parser {
     std::unordered_set<std::string> labelsDeclared;
     std::unordered_set<std::string> labelsGotoed;
     Lexer * const lexer;
+    Emitter * const emitter;
     Token *currentToken;
     Token *peekToken;
     void nextToken();
@@ -31,6 +33,9 @@ class Parser {
     void primary();
   public:
     explicit Parser(Lexer * lexer);
+
+    Parser(Lexer *lexer, Emitter *emitter);
+
     void program();
 };
 

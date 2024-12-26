@@ -6,6 +6,7 @@ include_directories(lib)
 include_directories(lib/lexer)
 include_directories(lib/token)
 include_directories(lib/parser)
+include_directories(lib/emitter)
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
@@ -28,4 +29,9 @@ add_library(parser
         lib/parser/parser.h
 )
 
-target_link_libraries(${PROJECT_NAME} token lexer parser )
+add_library(emitter
+        lib/emitter/emitter.cpp
+        lib/emitter/emitter.h
+)
+
+target_link_libraries(${PROJECT_NAME} token lexer emitter parser)

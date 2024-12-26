@@ -16,14 +16,7 @@ Token::Token(const std::string& tokenText, const TokenType& tokenType) {
   this->tokenType = tokenType;
 }
 
-Token::Token(const char& tokenStart, const TokenType& tokenType) {
-  tokenText = new char[2];
-  tokenText[0] = tokenStart;
-  tokenText[1] = '\0';
-  this->tokenType = tokenType;
-}
-
-Token* Token::tokenMap(const std::string tokenText) {
+Token* Token::tokenMap(const std::string& tokenText) {
     if (tokenText == toString(LABEL)) {
       return new Token(tokenText, LABEL);
     } else if(tokenText  == toString(GOTO)) {

@@ -67,13 +67,13 @@ Token* buildTwoCharacterToken(const char& firstChar, const char& secondChar, con
 
 Token* Lexer::resolveTwoCharacterToken(const char& peekedChar, const TokenType& oneCharType, const TokenType& twoCharType) {
   Token* token = nullptr;
+  auto finalStr = std::string(1, currentChar);
   if (peek() == peekedChar) {
-    const auto firstChar = currentChar;
     nextChar();
-    const auto secondChar = currentChar;
-    token = buildTwoCharacterToken(firstChar, secondChar, twoCharType);
+    finalStr.push_back(currentChar);
+    token = new Token(finalStr, twoCharType);
   } else {
-    token = new Token(currentChar, oneCharType);
+    token = new Token(finalStr, oneCharType);
   }
   return token;
 }
@@ -121,22 +121,22 @@ Token* Lexer::getToken() {
   Token* token = nullptr;
   switch(currentChar) {
     case '+':
-      token = new Token(currentChar, TokenType::PLUS);
+      token = new Token(&currentChar, TokenType::PLUS);
       break;
     case '-':
-      token = new Token(currentChar, TokenType::MINUS);
+      token = new Token(&currentChar, TokenType::MINUS);
       break;
     case '*':
-      token = new Token(currentChar, TokenType::ASTERISK);
+      token = new Token(&currentChar, TokenType::ASTERISK);
       break;
     case '/':
-      token = new Token(currentChar, TokenType::SLASH);
+      token = new Token(&currentChar, TokenType::SLASH);
       break;
     case '\n':
-      token = new Token(currentChar, TokenType::NEWLINE);
+      token = new Token(&currentChar, TokenType::NEWLINE);
       break;
     case '\0':
-      token = new Token(currentChar, TokenType::END_OF_FILE);
+      token = new Token(&currentChar, TokenType::END_OF_FILE);
       break;
     case '=':
       token = resolveTwoCharacterToken('=', EQ, EQEQ);

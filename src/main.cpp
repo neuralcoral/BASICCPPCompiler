@@ -9,16 +9,27 @@
 #include <fstream>
 #include <sstream>
 
+#include "emitter.h"
+
 std::string read_file(const std::string& file_name);
 
 int main(int argc, char* argv[]) {
 
   const auto source = read_file(argv[1]);
+  std::string outputFileName;
+  if (argc < 3) {
+    outputFileName = std::string(argv[1]) + ".c";
+  } else {
+    outputFileName = std::string(argv[2]);
+  }
   auto lexer = Lexer(source);
-  auto parser = Parser(&lexer);
-  parser.program();
+  auto emitter = Emitter(outputFileName);
+  auto parser = Parser(&lexer, &emitter);
 
-  std::cout << "Parser completed." << std::endl;
+  parser.program();
+  emitter.writeFile();
+
+  std::cout << "Compiling completed. See '" << outputFileName << "'\n";
   return 0;
 }
 

@@ -13,9 +13,8 @@ struct Token {
 
   Token();
   Token(const std::string& tokenText, const TokenType& tokenType);
-  Token(const char& tokenStart, const TokenType& tokenType);
 
-  static Token* tokenMap(std::string tokenText);
+  static Token* tokenMap(const std::string& tokenText);
 };
 
 #endif //TOKEN_H
