@@ -7,7 +7,7 @@
 #include "token.h"
 
 class Lexer {
-  char *source;
+  std::string source;
   char currentChar;
   unsigned int currentPosition;
   unsigned int sourceLength;
@@ -16,16 +16,15 @@ class Lexer {
   Token* handleNumber();
   Token* handleAlpha();
   public:
-    explicit Lexer(const char* source);
+    explicit Lexer(const std::string& source);
     Lexer(const Lexer& other);
-    ~Lexer();
     void nextChar();
     [[nodiscard]] char peek() const;
 
     void skipWhitespace();
     void skipComment();
     Token* getToken();
-    static void abort(const char *message);
+    static void abort(const std::string& message);
 };
 
 #endif //LEXER_H

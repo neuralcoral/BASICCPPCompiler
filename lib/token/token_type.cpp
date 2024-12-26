@@ -2,7 +2,10 @@
 // Created by George Alfaro on 12/18/24.
 //
 #include "token_type.h"
-const char* toString(const TokenType& tokenType) {
+
+#include <string>
+
+std::string toString(const TokenType &tokenType) {
   switch (tokenType) {
     case TokenType::END_OF_FILE: return "END_OF_FILE";
     case TokenType::NEWLINE: return "NEWLINE";

@@ -7,8 +7,9 @@
 #include "lexer.h"
 #include "parser.h"
 #include <fstream>
+#include <sstream>
 
-char* read_file(const char* file_name);
+std::string read_file(const std::string& file_name);
 
 int main(int argc, char* argv[]) {
 
@@ -18,22 +19,18 @@ int main(int argc, char* argv[]) {
   parser.program();
 
   std::cout << "Parser completed." << std::endl;
-  delete[] source;
   return 0;
 }
 
-char* read_file(const char* file_name) {
-  if (file_name == nullptr) {
+std::string read_file(const std::string& file_name) {
+  if (file_name.empty()) {
     std::cerr << "File name cannot be empty." << std::endl;
     throw std::invalid_argument("File name cannot be empty.");
   }
-  char* fileContent;
+  std::stringstream buffer;
   if (std::filesystem::exists(file_name)) {
     if (std::ifstream file(file_name); file.is_open()) {
-      const unsigned int fileSize = std::filesystem::file_size(file_name);
-      fileContent = new char[fileSize];
-      file.read(fileContent, fileSize);
-      file.close();
+      buffer << file.rdbuf();
     } else {
       std::cerr << "File could not be opened." << std::endl;
       throw std::runtime_error("File could not be opened.");
@@ -42,5 +39,6 @@ char* read_file(const char* file_name) {
     std::cerr << "File done not exist." << std::endl;
     throw std::runtime_error("File does not exist.");
   }
+  std::string fileContent = buffer.str();
   return fileContent;
 }

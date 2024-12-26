@@ -36,7 +36,7 @@ enum TokenType {
   GTEQ = 211
 };
 
-const char* toString(const TokenType& tokenType);
+std::string toString(const TokenType& tokenType);
 
 
 #endif //TOKEN_TYPE_H

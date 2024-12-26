@@ -13,33 +13,23 @@ bool isWhitespace(char c) {
   return c == ' ' || c == '\t' || c == '\r';
 }
 
-Lexer::Lexer(const char* source) {
+Lexer::Lexer(const std::string& source) {
   currentPosition = 0;
-  sourceLength = strlen(source);
+  sourceLength = source.size();
   if (sourceLength == 0) {
     currentChar = '\0';
     return;
   }
-  this->source = new char[sourceLength + 2];
-  memcpy(this->source, source, sourceLength);
-  this->source[sourceLength] = '\n';
-  this->source[sourceLength + 1] = '\0';
+  this->source = source;
+  this->source.append(1, '\n');
   currentChar = source[currentPosition];
 }
 
 Lexer::Lexer(const Lexer& other) {
   currentPosition = other.currentPosition;
   sourceLength = other.sourceLength;
-  source = new char[sourceLength + 2];
-  memcpy(this->source, source, sourceLength);
-  this->source[sourceLength] = '\n';
-  this->source[sourceLength + 1] = '\0';
-  currentChar = source[currentPosition];
-}
-
-Lexer::~Lexer() {
-  delete[] this->source;
-  this->source = nullptr;
+  source = other.source;
+  currentChar = other.currentChar;
 }
 
 void Lexer::nextChar() {
@@ -70,9 +60,9 @@ void Lexer::skipComment() {
 }
 
 Token* buildTwoCharacterToken(const char& firstChar, const char& secondChar, const TokenType& type) {
-  const auto chars = new char[2];
-  chars[0] = firstChar; chars[1] = secondChar;
-  return new Token(chars, type);
+  auto finalStr = std::string(1, firstChar);
+  finalStr.push_back(secondChar);
+  return new Token(finalStr, type);
 }
 
 Token* Lexer::resolveTwoCharacterToken(const char& peekedChar, const TokenType& oneCharType, const TokenType& twoCharType) {
@@ -105,9 +95,7 @@ Token* Lexer::handleString() {
     nextChar();
   }
   const unsigned int size = currentPosition - startPosition;
-  const auto tokenText = new char[size];
-  strncpy(tokenText, source + startPosition, size);
-  return new Token(tokenText, STRING);
+  return new Token(source.substr(startPosition, size), STRING);
 }
 
 Token* Lexer::handleAlpha() {
@@ -119,8 +107,7 @@ Token* Lexer::handleAlpha() {
     nextChar();
   }
   const unsigned int size = currentPosition - startPosition + 1;
-  const auto tokenText = new char[size];
-  strncpy(tokenText, source + startPosition, size);
+  const auto tokenText = source.substr(startPosition, size);
   if (const auto token = Token::tokenMap(tokenText)) {
     return token;
   }
@@ -168,7 +155,7 @@ Token* Lexer::getToken() {
         nextChar();
         token = buildTwoCharacterToken('!','=', NOTEQ);
       } else {
-        abort(std::string("Expected '!=', got `!").append(std::string(1, peek())).append("`\n").c_str());
+        abort(std::string("Expected '!=', got `!").append(std::string(1, peek())).append("`\n"));
       }
       break;
     default:
@@ -180,7 +167,7 @@ Token* Lexer::getToken() {
         break;
       }
       const auto errorMessage = std::string("Unexpected character: `").append(std::string(1, currentChar)).append("`\n");
-      abort(errorMessage.c_str());
+      abort(errorMessage);
   }
   nextChar();
   return token;
@@ -206,14 +193,12 @@ Token* Lexer::handleNumber() {
     }
   }
   const unsigned int size = currentPosition - startPosition + 1;
-  const auto tokenText = new char[size];
-  strncpy(tokenText, source + startPosition, size);
-  return new Token(tokenText, NUMBER);
+  return new Token(source.substr(startPosition, size), NUMBER);
 }
 
 
 
 
-void Lexer::abort(const char* message) {
+void Lexer::abort(const std::string& message) {
   throw std::runtime_error("Lexing error. " + std::string(message));
 }

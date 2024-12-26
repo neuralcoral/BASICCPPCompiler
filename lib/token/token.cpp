@@ -11,10 +11,8 @@ Token::Token() {
   this->tokenType = END_OF_FILE;
 }
 
-Token::Token(const char* tokenText, const TokenType& tokenType) {
-  this->tokenText = new char[strlen(tokenText) + 1];
-  memcpy(this->tokenText, tokenText, strlen(tokenText));
-  this->tokenText[strlen(tokenText)] = '\0';
+Token::Token(const std::string& tokenText, const TokenType& tokenType) {
+  this->tokenText = tokenText;
   this->tokenType = tokenType;
 }
 
@@ -25,33 +23,28 @@ Token::Token(const char& tokenStart, const TokenType& tokenType) {
   this->tokenType = tokenType;
 }
 
-Token::~Token() {
-  delete[] tokenText;
-  tokenText = nullptr;
-}
-
-Token* Token::tokenMap(const char* tokenText) {
-    if (strcmp(tokenText, toString(LABEL)) == 0) {
+Token* Token::tokenMap(const std::string tokenText) {
+    if (tokenText == toString(LABEL)) {
       return new Token(tokenText, LABEL);
-    } else if(strcmp(tokenText, toString(GOTO)) == 0) {
+    } else if(tokenText  == toString(GOTO)) {
       return new Token(tokenText, GOTO);
-    } else if(strcmp(tokenText, toString(PRINT)) == 0) {
+    } else if(tokenText  == toString(PRINT)) {
       return new Token(tokenText, PRINT);
-    } else if(strcmp(tokenText, toString(INPUT)) == 0) {
+    } else if(tokenText  == toString(INPUT)) {
       return new Token(tokenText, INPUT);
-    } else if(strcmp(tokenText, toString(LET)) == 0) {
+    } else if(tokenText  == toString(LET)) {
       return new Token(tokenText, LET);
-    } else if(strcmp(tokenText, toString(IF)) == 0) {
+    } else if(tokenText  == toString(IF)) {
       return new Token(tokenText, TokenType::IF);
-    } else if (strcmp(tokenText, toString(THEN)) == 0) {
+    } else if (tokenText  == toString(THEN)) {
       return new Token(tokenText, TokenType::THEN);
-    } else if (strcmp(tokenText, toString(ENDIF)) == 0) {
+    } else if (tokenText  == toString(ENDIF)) {
       return new Token(tokenText, TokenType::ENDIF);
-    } else if (strcmp(tokenText, toString(WHILE)) == 0) {
+    } else if (tokenText  == toString(WHILE)) {
       return new Token(tokenText, TokenType::WHILE);
-    } else if (strcmp(tokenText, toString(REPEAT)) == 0) {
+    } else if (tokenText  == toString(REPEAT)) {
       return new Token(tokenText, TokenType::REPEAT);
-    } else if (strcmp(tokenText, toString(ENDWHILE)) == 0) {
+    } else if (tokenText  == toString(ENDWHILE)) {
       return new Token(tokenText, TokenType::ENDWHILE);
     }
   return nullptr;
